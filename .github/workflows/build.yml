@@ -8,6 +8,17 @@ env:
 on:
   workflow_dispatch:
     inputs:
+
+      kernel_suffix:
+        description: '内核后缀(默认为原厂,开头无需连字符,请勿加入保留字符)'
+        required: true
+        default: 'android15-8-g29d86c5fc9dd-abogki428889875-4k'
+      
+      kernel_time:
+        description: "内核构建日期更改(默认为原厂)"
+        required: true
+        default: 'Tue Jul  1 19:48:18 UTC 2025'
+
       ksu_type:
         description: 'KernelSU分支(SukiSU Ultra/KernelSU Next,默认SukiSU Ultra)'
         required: true
@@ -34,15 +45,13 @@ on:
         type: boolean
         default: 'true'
       
-      kernel_suffix:
-        description: '内核后缀(默认为原厂,开头无需连字符,请勿加入保留字符)'
+      bbr_enable:
+        description: "启用BBR算法"
         required: true
-        default: 'android15-8-g29d86c5fc9dd-abogki428889875-4k'
+        type: boolean
+        default: 'false'
       
-      kernel_time:
-        description: "内核构建日期更改(默认为原厂)"
-        required: true
-        default: 'Tue Jul  1 19:48:18 UTC 2025'
+
 
 jobs:
   build:
@@ -307,7 +316,23 @@ jobs:
           #禁用 defconfig 检查
           sed -i 's/check_defconfig//' ./common/build.config.gki
           
-
+      - name: 添加 BBR 拥塞控制算法
+        run: |
+          if [[ "${{ github.event.inputs.bbr_enable }}" == "true" ]]; then
+            echo "正在添加BBR拥塞控制算法..."
+            cd kernel_workspace
+            echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_TCP_CONG_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_TCP_CONG_CUBIC=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_TCP_CONG_VEGAS=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_TCP_CONG_NV=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_TCP_CONG_WESTWOOD=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_TCP_CONG_HTCP=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_TCP_CONG_BRUTAL=y" >> ./common/arch/arm64/configs/gki_defconfig
+            echo "CONFIG_DEFAULT_TCP_CONG=bbr" >> ./common/arch/arm64/configs/gki_defconfig
+          else
+            echo "CONFIG_DEFAULT_TCP_CONG=cubic" >> ./common/arch/arm64/configs/gki_defconfig
+          fi
 
 
       - name: 启用内核级基带保护
@@ -478,12 +503,14 @@ jobs:
           name: "${{ env.TAG_HEAD }}-${{ env.FULL_VERSION }}"
           body: |
             ### 📱 欧加真通用内核 | 构建信息
+            - KernelSU分支：${{ env.KSU_BRANCH }}
             - 内核版本号: ${{ env.FULL_VERSION }}
             - 编译时间: ${{ env.TIME_FORM }}
             - 机型：Ace5 Ultra 6.6.50 Android 15
             - LZ4KD支持：${{ env.lz4kd_enable }}
             - LZ4支持：${{ env.lz4_zstd_enable }}
             - 内核级基带保护支持：${{ github.event.inputs.baseband_guard }}
+            - BBR 拥塞控制算法支持：${{ github.event.inputs.bbr_enable }}
             - SukiSU Ultra管理器下载：[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra/releases)
             - KernelSU Next管理器下载：[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next/releases)
             ### 📋 安装方法 | Installation Guide
