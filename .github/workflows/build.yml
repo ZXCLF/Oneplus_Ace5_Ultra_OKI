@@ -318,9 +318,9 @@ jobs:
           
       - name: 添加 BBR 拥塞控制算法
         run: |
+          cd kernel_workspace
           if [[ "${{ github.event.inputs.bbr_enable }}" == "true" ]]; then
             echo "正在添加BBR拥塞控制算法..."
-            cd kernel_workspace
             echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo "CONFIG_TCP_CONG_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo "CONFIG_TCP_CONG_CUBIC=y" >> ./common/arch/arm64/configs/gki_defconfig
