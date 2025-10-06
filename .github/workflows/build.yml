@@ -12,10 +12,10 @@ on:
         description: 'KernelSU分支(SukiSU Ultra/KernelSU Next,默认SukiSU Ultra)'
         required: true
         type: choice
-        default: 'sukisu'
+        default: 'SukiSU-Ultra'
         options:
-          - 'sukisu'
-          - 'ksunext'
+          - 'SukiSU-Ultra'
+          - 'KernelSU-Next'
 
       lz4_enable:
         description: '选择要安装的内存算法补丁类型'
@@ -144,7 +144,7 @@ jobs:
         run: |
           # 进入内核工作目录
           cd kernel_workspace
-          if [[ ${{ github.event.inputs.ksu_type }} == "sukisu" ]]; then
+          if [[ ${{ github.event.inputs.ksu_type }} == "SukiSU-Ultra" ]]; then
             echo "正在配置SukiSU Ultra..."
             curl -LSs "https://raw.githubusercontent.com/ShirkNeko/SukiSU-Ultra/refs/heads/main/kernel/setup.sh" | bash -s susfs-main
             cd ./KernelSU
@@ -212,7 +212,7 @@ jobs:
       - name: 应用 KernelSU & SUSFS 补丁
         run: |
           cd kernel_workspace
-          if [[ ${{ github.event.inputs.ksu_type }} == "sukisu" ]]; then
+          if [[ ${{ github.event.inputs.ksu_type }} == "SukiSU-Ultra" ]]; then
             echo "正在添加SukiSU Ultra补丁..."
             git clone https://github.com/ShirkNeko/susfs4ksu.git -b gki-${{ env.ANDROID_VERSION }}-${{ env.KERNEL_VERSION }}
             git clone https://github.com/ShirkNeko/SukiSU_patch.git
@@ -260,7 +260,7 @@ jobs:
           if [[ "${{ github.event.inputs.lz4_enable }}" == "仅安装 LZ4KD 补丁" || "${{ github.event.inputs.lz4_enable }}" == "安装全部补丁" ]]; then
             echo "正在添加lz4kd补丁…"
             cd kernel_workspace
-            if [[ ${{ github.event.inputs.ksu_type }} == "ksunext" ]]; then
+            if [[ ${{ github.event.inputs.ksu_type }} == "KernelSU-Next" ]]; then
               git clone https://github.com/ShirkNeko/SukiSU_patch.git
             fi
             cd common
@@ -408,7 +408,7 @@ jobs:
             echo "未找到内核镜像文件，构建可能出错"
             exit 1
           fi
-          if [[ ${{ github.event.inputs.ksu_type }} == "sukisu" ]]; then
+          if [[ ${{ github.event.inputs.ksu_type }} == "SukiSU-Ultra" ]]; then
             KSU_TYPENAME="SukiSU"
           else
             KSU_TYPENAME="KSUNext"
@@ -451,7 +451,7 @@ jobs:
           echo "TIME_FORM=$TIME_FORM" >> $GITHUB_ENV
           TAG_HEAD="Ace5-Ultra-build"
           echo "TAG_HEAD=$TAG_HEAD" >> $GITHUB_ENV
-          if [[ ${{ github.event.inputs.ksu_type }} == "sukisu" ]]; then
+          if [[ ${{ github.event.inputs.ksu_type }} == "SukiSU-Ultra" ]]; then
             KSU_BRANCH="SukiSU Ultra"
           else
             KSU_BRANCH="KernelSU Next"
