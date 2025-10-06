@@ -12,7 +12,7 @@ on:
         description: 'KernelSU分支(SukiSU Ultra/KernelSU Next,默认SukiSU Ultra)'
         required: true
         type: choice
-        default: 'SukiSU-Ultra'
+        default: 'sukisu'
         options:
           - 'SukiSU-Ultra'
           - 'KernelSU-Next'
@@ -394,11 +394,11 @@ jobs:
 
 
           
-# 以下内容待测试
 
       - name: 克隆 AnyKernel3 并打包
         run: |
           cd kernel_workspace
+          rm -rf Oneplus_Ace5_Ultra_OKI AnyKernel3
           git clone --branch AnyKernel3 --depth 1 https://github.com/ZXCLF/Oneplus_Ace5_Ultra_OKI.git
           mv "Oneplus_Ace5_Ultra_OKI" AnyKernel3
           rm -rf ./AnyKernel3/.git
