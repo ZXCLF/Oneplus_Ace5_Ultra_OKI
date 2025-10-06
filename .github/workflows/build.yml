@@ -502,11 +502,11 @@ jobs:
           tag_name: "${{ env.TAG_HEAD }}-${{ env.TIME }}"
           name: "${{ env.TAG_HEAD }}-${{ env.FULL_VERSION }}"
           body: |
-            ### 📱 欧加真通用内核 | 构建信息
+            ### 📱 Oneplus Ace5 Ultra 内核 | 构建信息
             - KernelSU分支：${{ env.KSU_BRANCH }}
             - 内核版本号: ${{ env.FULL_VERSION }}
             - 编译时间: ${{ env.TIME_FORM }}
-            - 机型：Ace5 Ultra 6.6.50 Android 15
+            - 机型：Oneplus Ace5 Ultra 6.6.50 Android 15
             - LZ4KD支持：${{ env.lz4kd_enable }}
             - LZ4支持：${{ env.lz4_zstd_enable }}
             - 内核级基带保护支持：${{ github.event.inputs.baseband_guard }}
