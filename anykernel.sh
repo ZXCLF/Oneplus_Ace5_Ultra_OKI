@@ -56,7 +56,11 @@ fi
 if [ -f "$AKHOME/zram.zip" ]; then
     MODULE_PATH="$AKHOME/zram.zip"
     KSUD_PATH="/data/adb/ksud"
-    if [ -f "$KSUD_PATH" ]; then
+    
+    # 检测是否已存在zram模块
+    if [ -d "/data/adb/modules/zram_adaptive" ]; then
+        ui_print "检测到已存在 zram 模块，跳过安装..."
+    elif [ -f "$KSUD_PATH" ]; then
         ui_print "安装 zram 模块..."
         /data/adb/ksud module install "$MODULE_PATH"
         ui_print "安装完成!"
