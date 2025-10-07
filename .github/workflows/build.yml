@@ -20,7 +20,7 @@ on:
         default: 'Tue Jul  1 19:48:18 UTC 2025'
 
       ksu_type:
-        description: 'KernelSU分支(SukiSU Ultra/KernelSU Next,默认SukiSU Ultra)'
+        description: 'KernelSU 分支'
         required: true
         type: choice
         default: 'sukisu'
