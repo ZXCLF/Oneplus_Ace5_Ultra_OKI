@@ -40,7 +40,7 @@ on:
           - '安装全部补丁'
 
       baseband_guard:
-        description: '内核防格机保护'
+        description: 'BBG基带防护'
         required: true
         type: boolean
         default: 'true'
