@@ -50,7 +50,12 @@ on:
         required: true
         type: boolean
         default: 'false'
-      
+
+      lxc_docker_support:
+        description: '启用 LXC 和 Docker 容器支持'
+        required: true
+        type: boolean
+        default: 'false'
 
 
 jobs:
@@ -123,7 +128,7 @@ jobs:
         run: |
           cd kernel_workspace
           echo "正在克隆源码仓库..."
-          aria2c -s16 -x16 -k1M https://github.com/ZXCLF/Oneplus_Ace5_Ultra_OKI/releases/download/Resource/android_kernel_oneplus_mt6991.zip -o common.zip && 
+          aria2c -s16 -x16 -k1M https://github.com/ZXCLF/Oneplus_Ace5_Ultra_OKI/releases/download/Resource/android_kernel_oneplus_mt6991_lxc_docker_testonly.zip -o common.zip && 
           unzip -q common.zip && 
           mv "android_kernel_oneplus_mt6991-oneplus-mt6991_v_15.0.2_ace5_ultra" common &&
           rm -rf common.zip &
@@ -364,9 +369,66 @@ jobs:
             }
             ' ./Kconfig > Kconfig.tmp && mv Kconfig.tmp ./Kconfig
             sed -i 's/selinuxfs.o //g' "./selinux/Makefile"
-            sed -i 's/hooks.o //g' "./selinux/Makefile"
             cat "./baseband-guard/sepatch.txt" >> "./selinux/Makefile"
           fi
+
+      - name: 添加 LXC 和 Docker 支持配置
+        if: ${{ github.event.inputs.lxc_docker_support == 'true' }}
+        run: |
+          cd kernel_workspace
+          echo "正在添加 LXC 和 Docker 支持配置..."
+
+          # 添加 Docker 基础支持
+          echo "CONFIG_DOCKER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NAMESPACES=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NET_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_PID_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_IPC_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_UTS_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_USER_NS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUPS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUP_CPUACCT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUP_DEVICE=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUP_FREEZER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUP_SCHED=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CPUSETS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_MEMCG=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KEYS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_VETH=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_BRIDGE=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_BRIDGE_NETFILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NF_NAT_IPV4=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_IP_NF_FILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_IP_NF_TARGET_MASQUERADE=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NETFILTER_XT_MATCH_CONNTRACK=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NF_NAT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NF_NAT_NEEDED=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_POSIX_MQUEUE=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_SECCOMP=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUP_PIDS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NET_CLS_CGROUP=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # 添加网络支持
+          echo "CONFIG_NETFILTER=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NETFILTER_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NF_CONNTRACK=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NETFILTER_XTABLES=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_IP_NF_IPTABLES=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # 添加文件系统支持
+          echo "CONFIG_OVERLAY_FS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_EXT4_FS_POSIX_ACL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_EXT4_FS_SECURITY=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          # 添加其他必要的配置
+          echo "CONFIG_PROC_PID_CPUSET=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NET_SCHED=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUP_NET_PRIO=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_CGROUP_NET_CLASSID=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_VLAN_8021Q=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_BINFMT_MISC=y" >> ./common/arch/arm64/configs/gki_defconfig
+
+          echo "LXC 和 Docker 支持配置已添加完成！"
 
       - name: 添加制作名称
         run: |
